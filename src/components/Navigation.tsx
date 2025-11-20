@@ -1,9 +1,25 @@
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User } from "lucide-react";
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
@@ -26,8 +42,34 @@ const Navigation = () => {
           </div>
 
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="outline" size="sm">Sign In</Button>
-            <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">Join Now</Button>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <User className="w-4 h-4 mr-2" />
+                    {user.displayName || user.email}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => navigate('/admin')}>
+                    Admin Dashboard
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Button variant="outline" size="sm" onClick={() => navigate('/login')}>
+                  Sign In
+                </Button>
+                <Button size="sm" onClick={() => navigate('/login')}>
+                  Join Now
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -46,8 +88,25 @@ const Navigation = () => {
             <a href="#events" className="block text-foreground hover:text-primary transition-colors">Events</a>
             <a href="#blog" className="block text-foreground hover:text-primary transition-colors">Blog</a>
             <div className="flex flex-col gap-2 pt-4">
-              <Button variant="outline" size="sm">Sign In</Button>
-              <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90">Join Now</Button>
+              {user ? (
+                <>
+                  <Button variant="outline" size="sm" onClick={() => navigate('/admin')}>
+                    Admin Dashboard
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleSignOut}>
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="outline" size="sm" onClick={() => navigate('/login')}>
+                    Sign In
+                  </Button>
+                  <Button size="sm" onClick={() => navigate('/login')}>
+                    Join Now
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         )}
